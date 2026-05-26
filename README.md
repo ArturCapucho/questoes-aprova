@@ -1,6 +1,6 @@
 # Questoes Aprova
 
-API REST para uma plataforma de questoes de concursos, criada como projeto de portfolio Java com Spring Boot. O objetivo e demonstrar uma base backend realista: autenticacao, persistencia, cache, migrations, documentacao de API, monitoramento e uma ponte inicial para explicacoes com IA.
+Plataforma de questoes de concursos criada como projeto de portfolio Java. O projeto combina uma API REST em Spring Boot com um frontend React demonstrativo para consumir os principais fluxos: cadastro, login, categorias, questoes e tentativa de resposta.
 
 ## Stack
 
@@ -17,6 +17,8 @@ API REST para uma plataforma de questoes de concursos, criada como projeto de po
 - Docker Compose
 - LangChain4j/OpenAI
 - Lombok
+- React
+- Vite
 
 ## Arquitetura
 
@@ -39,6 +41,12 @@ Cliente/Swagger -> Controller -> RequestDTO -> Service -> Entity -> Repository -
 PostgreSQL -> Entity -> Service -> ResponseDTO -> Controller -> Cliente/Swagger
 ```
 
+O frontend fica em `frontend/` e consome a API usando proxy do Vite:
+
+```text
+React/Vite -> /api -> Spring Boot -> PostgreSQL/Redis
+```
+
 ## Decisoes Tecnicas
 
 - **DTOs**: separam o contrato publico da API das entidades do banco. Isso evita vazar dados internos, como `senhaHash`.
@@ -50,6 +58,7 @@ PostgreSQL -> Entity -> Service -> ResponseDTO -> Controller -> Cliente/Swagger
 - **Swagger**: documenta e permite testar endpoints pelo navegador.
 - **Actuator**: expoe saude e metricas basicas da aplicacao.
 - **Docker Compose**: sobe Postgres, Redis, pgAdmin e a aplicacao em ambiente local.
+- **Frontend React**: oferece uma interface simples para demonstrar os endpoints da API.
 
 ## Como Rodar
 
@@ -57,6 +66,7 @@ Pre-requisitos:
 
 - Java 21
 - Docker e Docker Compose
+- Node.js 22+
 
 Suba a infraestrutura:
 
@@ -75,6 +85,7 @@ No Windows, se o wrapper falhar, use o Maven instalado ou o Maven baixado pelo w
 URLs uteis:
 
 - API: `http://localhost:8080`
+- Frontend: `http://localhost:5173`
 - Swagger: `http://localhost:8080/swagger-ui.html`
 - Health: `http://localhost:8080/actuator/health`
 - Metrics: `http://localhost:8080/actuator/metrics`
@@ -95,6 +106,21 @@ pgAdmin:
 ```text
 email: admin@questoesaprova.local
 password: admin
+```
+
+Rode o frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+No Windows, se o PowerShell bloquear `npm`, use:
+
+```bash
+npm.cmd install
+npm.cmd run dev
 ```
 
 ## Endpoints Principais
@@ -129,6 +155,17 @@ Authorization: Bearer <token>
 ```
 
 ## Fluxo Minimo Para Testar
+
+Pelo frontend:
+
+1. Abra `http://localhost:5173`.
+2. Crie um usuario.
+3. Faca login para armazenar o JWT.
+4. Crie uma categoria.
+5. Crie uma questao.
+6. Carregue questoes e responda uma alternativa.
+
+Pelo Swagger ou cliente HTTP:
 
 1. Criar usuario:
 
@@ -231,17 +268,18 @@ Conceitos-chave:
 - **Flyway**: cria e evolui o schema com migrations versionadas.
 - **JWT stateless**: o servidor valida o token sem guardar sessao.
 - **Redis**: guarda respostas frequentes em cache para melhorar performance.
+- **Frontend React**: consome os endpoints para demonstrar o fluxo real da aplicacao.
 
 ## Post Sugerido Para LinkedIn
 
 ```text
-Estou desenvolvendo o Questoes Aprova, uma API REST em Java 21 e Spring Boot para uma plataforma de questoes de concursos.
+Estou desenvolvendo o Questoes Aprova, uma plataforma de questoes de concursos com backend Java/Spring Boot e frontend React.
 
-O projeto foi pensado como um laboratorio pratico de backend Java, com arquitetura em camadas, DTOs, JPA/Hibernate, PostgreSQL, Flyway, Redis, autenticacao JWT, Swagger, Actuator, Docker Compose e uma integracao inicial com IA usando LangChain4j/OpenAI.
+O projeto foi pensado como um laboratorio pratico de backend Java, com arquitetura em camadas, DTOs, JPA/Hibernate, PostgreSQL, Flyway, Redis, autenticacao JWT, Swagger, Actuator, Docker Compose e uma integracao inicial com IA usando LangChain4j/OpenAI. Para demonstrar o uso real da API, adicionei um frontend em React/Vite consumindo os fluxos de cadastro, login, categorias, questoes e tentativas.
 
 O foco foi construir uma base proxima de um projeto real: banco versionado com migrations, seguranca stateless, cache para reduzir chamadas repetidas de IA, documentacao dos endpoints e ambiente local reproduzivel com Docker.
 
-Tecnologias: Java, Spring Boot, Spring Data JPA, Spring Security, PostgreSQL, Redis, Flyway, Docker, Swagger/OpenAPI.
+Tecnologias: Java, Spring Boot, Spring Data JPA, Spring Security, PostgreSQL, Redis, Flyway, Docker, Swagger/OpenAPI, React e Vite.
 
 Proximos passos: testes automatizados, filtros avancados de questoes e melhoria do fluxo de usuario autenticado.
 ```
