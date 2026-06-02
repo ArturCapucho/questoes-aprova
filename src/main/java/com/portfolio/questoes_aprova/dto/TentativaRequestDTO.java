@@ -3,9 +3,6 @@ package com.portfolio.questoes_aprova.dto;
 import jakarta.validation.constraints.NotNull;
 
 public record TentativaRequestDTO(
-        @NotNull(message = "Usuario e obrigatorio.")
-        Long usuarioId,
-
         @NotNull(message = "Questao e obrigatoria.")
         Long questaoId,
 

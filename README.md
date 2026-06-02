@@ -145,6 +145,7 @@ POST /api/questoes
 GET  /api/questoes?page=0&size=20
 GET  /api/questoes/{ano}/{id}
 POST /api/tentativas
+GET  /api/tentativas/desempenho
 POST /api/editais/mapear-categorias
 ```
 
@@ -237,11 +238,19 @@ Authorization: Bearer <token>
 Content-Type: application/json
 
 {
-  "usuarioId": 1,
   "questaoId": 1,
   "questaoAno": 2026,
   "alternativaEscolhidaId": 1
 }
+```
+
+O backend identifica o aluno pelo JWT. Por isso o cliente nao envia `usuarioId` ao registrar tentativa.
+
+6. Consultar desempenho:
+
+```http
+GET /api/tentativas/desempenho
+Authorization: Bearer <token>
 ```
 
 ## Validacoes Implementadas
@@ -251,6 +260,7 @@ Content-Type: application/json
 - Questao exige ano, enunciado, categoria e pelo menos duas alternativas.
 - Questao deve ter exatamente uma alternativa correta.
 - Tentativa exige usuario, questao, ano e alternativa escolhida.
+- Tentativa usa o usuario autenticado pelo JWT, evitando que o cliente escolha outro `usuarioId`.
 - Erros de validacao retornam JSON padronizado pelo `GlobalExceptionHandler`.
 
 ## Como Explicar Em Entrevista
@@ -267,6 +277,7 @@ Conceitos-chave:
 - **JPA vs Hibernate vs PostgreSQL**: JPA e o padrao, Hibernate e a implementacao, PostgreSQL e o banco real.
 - **Flyway**: cria e evolui o schema com migrations versionadas.
 - **JWT stateless**: o servidor valida o token sem guardar sessao.
+- **Tentativa autenticada**: o backend identifica o aluno pelo JWT, sem confiar em `usuarioId` enviado pelo frontend.
 - **Redis**: guarda respostas frequentes em cache para melhorar performance.
 - **Frontend React**: consome os endpoints para demonstrar o fluxo real da aplicacao.
 

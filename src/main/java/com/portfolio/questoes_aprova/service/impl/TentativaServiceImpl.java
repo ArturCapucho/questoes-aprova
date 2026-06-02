@@ -2,6 +2,7 @@ package com.portfolio.questoes_aprova.service.impl;
 
 import com.portfolio.questoes_aprova.dto.TentativaRequestDTO;
 import com.portfolio.questoes_aprova.dto.TentativaResponseDTO;
+import com.portfolio.questoes_aprova.dto.DesempenhoResponseDTO;
 import com.portfolio.questoes_aprova.entity.Alternativa;
 import com.portfolio.questoes_aprova.entity.Questao;
 import com.portfolio.questoes_aprova.entity.Tentativa;
@@ -30,8 +31,8 @@ public class TentativaServiceImpl implements TentativaService {
 
     @Override
     @Transactional
-    public TentativaResponseDTO responder(TentativaRequestDTO dto) {
-        Usuario usuario = usuarioRepository.findById(dto.usuarioId())
+    public TentativaResponseDTO responder(String emailUsuario, TentativaRequestDTO dto) {
+        Usuario usuario = usuarioRepository.findByEmail(emailUsuario)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario nao encontrado."));
         Questao questao = questaoRepository.findById(new Questao.QuestaoId(dto.questaoId(), dto.questaoAno()))
                 .orElseThrow(() -> new ResourceNotFoundException("Questao nao encontrada."));
@@ -50,5 +51,26 @@ public class TentativaServiceImpl implements TentativaService {
         tentativa.setExplicacaoIa(iaExplanationService.gerarExplicacao(questao, alternativa));
 
         return TentativaResponseDTO.from(tentativaRepository.save(tentativa));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public DesempenhoResponseDTO buscarDesempenho(String emailUsuario) {
+        Usuario usuario = usuarioRepository.findByEmail(emailUsuario)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario nao encontrado."));
+
+        var tentativas = tentativaRepository.findByUsuarioIdOrderByRespondidoEmDesc(usuario.getId());
+        long total = tentativas.size();
+        long acertos = tentativas.stream().filter(tentativa -> Boolean.TRUE.equals(tentativa.getCorreta())).count();
+        long erros = total - acertos;
+        double percentual = total == 0 ? 0 : Math.round((acertos * 10000.0 / total)) / 100.0;
+
+        return new DesempenhoResponseDTO(
+                total,
+                acertos,
+                erros,
+                percentual,
+                tentativas.stream().limit(5).map(TentativaResponseDTO::from).toList()
+        );
     }
 }

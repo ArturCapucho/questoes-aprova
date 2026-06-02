@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
+  BarChart3,
   BookOpen,
   CheckCircle2,
   KeyRound,
@@ -47,6 +48,7 @@ function App() {
   const [categorias, setCategorias] = useState([]);
   const [questoes, setQuestoes] = useState([]);
   const [tentativa, setTentativa] = useState(null);
+  const [desempenho, setDesempenho] = useState(null);
   const [status, setStatus] = useState("Conecte a API Spring Boot em http://localhost:8080 e use o fluxo abaixo.");
   const [loading, setLoading] = useState(false);
   const [register, setRegister] = useState(initialRegister);
@@ -116,6 +118,7 @@ function App() {
   function sair() {
     setToken("");
     setTentativa(null);
+    setDesempenho(null);
     localStorage.removeItem("qa_token");
     setStatus("Sessao local encerrada.");
   }
@@ -167,8 +170,8 @@ function App() {
   }
 
   async function responderQuestao(questao) {
-    if (!usuario?.id) {
-      setStatus("Crie um usuario nesta tela antes de registrar tentativa.");
+    if (!token) {
+      setStatus("Faca login antes de responder. O backend usa o JWT para identificar o aluno.");
       return;
     }
     if (!selectedAlternativeId) {
@@ -180,7 +183,6 @@ function App() {
         request("/api/tentativas", {
           method: "POST",
           body: JSON.stringify({
-            usuarioId: usuario.id,
             questaoId: questao.id,
             questaoAno: questao.ano,
             alternativaEscolhidaId: Number(selectedAlternativeId)
@@ -190,6 +192,17 @@ function App() {
     );
     if (data) {
       setTentativa(data);
+      carregarDesempenho();
+    }
+  }
+
+  async function carregarDesempenho() {
+    const data = await runAction(
+      () => request("/api/tentativas/desempenho"),
+      "Desempenho atualizado com base no usuario autenticado pelo JWT."
+    );
+    if (data) {
+      setDesempenho(data);
     }
   }
 
@@ -218,6 +231,7 @@ function App() {
           <a href="#auth"><KeyRound size={18} /> Autenticacao</a>
           <a href="#categorias"><Layers3 size={18} /> Categorias</a>
           <a href="#questoes"><BookOpen size={18} /> Questoes</a>
+          <a href="#desempenho"><BarChart3 size={18} /> Desempenho</a>
           <a href="#tentativa"><ListChecks size={18} /> Tentativa</a>
         </nav>
 
@@ -348,6 +362,44 @@ function App() {
             </button>
           )}
         </section>
+
+        <section id="desempenho" className="panel">
+          <header className="panel-header split">
+            <div className="panel-title-inline">
+              <div className="panel-icon"><BarChart3 size={20} /></div>
+              <div>
+                <h2>Desempenho do aluno</h2>
+                <span>GET /api/tentativas/desempenho</span>
+              </div>
+            </div>
+            <button className="icon-button" onClick={carregarDesempenho}>
+              <RotateCcw size={17} />
+              Atualizar
+            </button>
+          </header>
+
+          {desempenho ? (
+            <div className="dashboard-grid">
+              <Metric label="Respondidas" value={desempenho.totalTentativas} />
+              <Metric label="Acertos" value={desempenho.totalAcertos} />
+              <Metric label="Erros" value={desempenho.totalErros} />
+              <Metric label="Aproveitamento" value={`${desempenho.percentualAcerto}%`} />
+            </div>
+          ) : (
+            <EmptyState text="Faca login e responda uma questao para carregar seu desempenho." />
+          )}
+
+          {desempenho?.ultimasTentativas?.length > 0 && (
+            <div className="history-list">
+              {desempenho.ultimasTentativas.map((item) => (
+                <div className="row-item" key={item.id}>
+                  <strong>{item.correta ? "Acerto" : "Erro"} na questao #{item.questaoId}</strong>
+                  <span>{new Date(item.respondidoEm).toLocaleString("pt-BR")}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </section>
     </main>
   );
@@ -397,6 +449,15 @@ function Input({ label, value, onChange, type = "text" }) {
 
 function EmptyState({ text }) {
   return <div className="empty-state">{text}</div>;
+}
+
+function Metric({ label, value }) {
+  return (
+    <div className="metric-card">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
 }
 
 createRoot(document.getElementById("root")).render(<App />);
