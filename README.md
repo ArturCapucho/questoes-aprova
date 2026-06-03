@@ -18,6 +18,8 @@ Plataforma de estudos para concursos com backend em Java/Spring Boot e frontend 
 - LangChain4j/OpenAI
 - React
 - Vite
+- JUnit
+- Mockito
 
 ## Funcionalidades
 
@@ -30,6 +32,7 @@ Plataforma de estudos para concursos com backend em Java/Spring Boot e frontend 
 - Cache Redis para explicacoes de IA
 - Documentacao da API com Swagger
 - Ambiente local com PostgreSQL, Redis e pgAdmin via Docker Compose
+- Testes unitarios da camada de service
 
 ## Arquitetura
 
@@ -86,6 +89,12 @@ No Windows, se o PowerShell bloquear `npm`, use:
 ```bash
 npm.cmd install
 npm.cmd run dev
+```
+
+Rode os testes:
+
+```bash
+./mvnw test
 ```
 
 URLs:
@@ -158,4 +167,4 @@ password: concursos
 
 ## Status
 
-Projeto em desenvolvimento para estudo e portfolio. Proximas melhorias previstas incluem testes automatizados, filtros avancados de questoes, area administrativa mais completa e evolucao do dashboard do aluno.
+Projeto em desenvolvimento para estudo e portfolio. Proximas melhorias previstas incluem filtros avancados de questoes, area administrativa mais completa, testes de controller e evolucao do dashboard do aluno.

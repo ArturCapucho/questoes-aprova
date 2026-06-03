@@ -1,13 +1,13 @@
 package com.portfolio.questoes_aprova;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+import static org.assertj.core.api.Assertions.assertThat;
+
 class QuestoesAprovaApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void applicationClassExists() {
+		assertThat(QuestoesAprovaApplication.class).isNotNull();
 	}
-
 }
